@@ -17,10 +17,10 @@
     <script src="libs/Sortable.min.js"></script>
 
     <!-- New module-based code from './modules' -->
-    <script src="scripts/modules.min.js?v=0.8.13"></script>
+    <script src="scripts/modules.min.js?v=0.8.14"></script>
 
     <!--Minified scripts-->
-    <script src="scripts/script.min.js?v=0.8.13"></script>
+    <script src="scripts/script.min.js?v=0.8.14"></script>
 
     <!--Popper.js-->
     <script src="libs/popper.min.js"></script>
@@ -41,27 +41,9 @@
     <link href="libs/introjs-modern.css" rel="stylesheet">
 
     <!--Minified styles-->
-    <link href="styles/styles.min.css?v=0.8.13" rel="stylesheet">
+    <link href="styles/styles.min.css?v=0.8.14" rel="stylesheet">
 
     <!-- Google Analytics-->
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-171657234-1"></script>
-    <script>
-        if (true) {
-            window.dataLayer = window.dataLayer || [];
-
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-
-            gtag('js', new Date());
-
-            gtag('config', 'UA-171657234-1');
-        } else {
-            function gtag(){};
-        }
-    </script>
-
     <style>
         #game.loading {
             display: none !important;
@@ -1357,7 +1339,8 @@
                                             title: Battle.enemyPokemon()
                                                 ? `${App.game.party.calculatePokemonAttack(
                                                     Battle.enemyPokemon().type1,
-                                                    Battle.enemyPokemon().type2
+                                                    Battle.enemyPokemon().type2,
+                                                    true,
                                                 ).toLocaleString('en-US')} against ${Battle.enemyPokemon().name}`
                                                 : '',
                                             trigger: 'hover',
@@ -7094,7 +7077,7 @@
 
      
 
-<image href="assets/images/map/distorsion_world.png" xlink:href="assets/images/map/distorsion_world.png"
+<image href="assets/images/map/distortion_world.png" xlink:href="assets/images/map/distortion_world.png"
     x="1184"
     y="624"
     height="80"
@@ -13180,9 +13163,8 @@
                             <td class="text-left font-weight-bold" data-bind="text: $data.type"></td>
                             <td class="p-1">
                                 <!-- ko if: !$data.active() && player.starter() == GameConstants.Starter.None --><button class="btn btn-warning btn-block" data-bind="click: ()=>{$data.activate();}">ACTIVATE</button><!-- /ko -->
-                                <!-- ko if: $data.active() && player.starter() == GameConstants.Starter.None --><button class="btn btn-success btn-block" data-bind="click: ()=>{$data.disable();}">ACTIVE</button><!-- /ko -->
                                 <!-- ko if: !$data.active() && player.starter() != GameConstants.Starter.None --><button class="btn btn-secondary btn-block disabled">DISABLED</button><!-- /ko -->
-                                <!-- ko if: $data.active() && player.starter() != GameConstants.Starter.None --><button class="btn btn-success btn-block disabled">ACTIVE</button><!-- /ko -->
+                                <!-- ko if: $data.active() --><button class="btn btn-success btn-block" data-bind="click: ()=>{$data.disable();}">ACTIVE</button><!-- /ko -->
                             </td>
                         </tr>
                     </tbody>
@@ -14553,7 +14535,7 @@ aria-labelledby="breedingModalLabel" aria-hidden="true">
                         <div class='progress'>
                             <div id='mineEnergyBar' class='progress-bar bg-warning' role='progressbar'
                                  aria-valuemin='0' aria-valuemax='100'
-                                 data-bind="style: { width: Math.floor(App.game.underground.energy/App.game.underground.getMaxEnergy()*100) + '%' }">
+                                 data-bind="style: { width: (Math.floor(App.game.underground.energy)/App.game.underground.getMaxEnergy()*100).toFixed(2) + '%' }">
                                 <span data-bind="text: 'Energy: ' + Math.floor(App.game.underground.energy) + ' / ' + App.game.underground.getMaxEnergy() + (Math.floor(App.game.underground.energy) < App.game.underground.getMaxEnergy() ? ' (' + Underground.energyTick() + 's)' : '')"></span>
                             </div>
                         </div>
