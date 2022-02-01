@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/pokeclicker/pokeclicker/issues"
   },
-  "homepage": "https://github.com/pokeclicker/pokeclicker#readme",
+  "homepage": "https://jk13pclick.github.io/pokeclicker/",
   "devDependencies": {
     "@types/gtag.js": "0.0.4",
     "@types/jquery": "^3.5.2",
