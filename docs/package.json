@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/pokeclicker/pokeclicker/issues"
   },
-  "homepage": "https://github.com/jk13pclick/pokeclicker#readme/",
+  "homepage": "https://github.com/jk13pclick/pokeclicker#readme",
   "devDependencies": {
     "@types/gtag.js": "0.0.4",
     "@types/jquery": "^3.5.2",
@@ -42,6 +42,7 @@
     "es6-promise": "^4.2.8",
     "eslint-config-airbnb-typescript": "^11.0.0",
     "eslint-plugin-import": "^2.22.1",
+    "gh-pages": "^3.2.3",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^7.0.1",
     "gulp-changed": "^4.0.2",
