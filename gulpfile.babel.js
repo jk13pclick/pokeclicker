@@ -33,7 +33,7 @@ try {
 }
 // use our config settings or default values if the key doesn't exist
 config = Object.assign({
-    CNAME: false,
+    CNAME: true,
     GOOGLE_ANALYTICS_INIT: false,
     GOOGLE_ANALYTICS_ID: false,
     DEV_BANNER: false,
