@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pokeclicker/pokeclicker.git"
+    "url": "git+https://github.com/jk13pclick/pokeclicker.git"
   },
   "babel": {
     "presets": [
@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/pokeclicker/pokeclicker/issues"
   },
-  "homepage": "https://jk13pclick.github.io/pokeclicker/",
+  "homepage": "https://github.com/jk13pclick/pokeclicker#readme/",
   "devDependencies": {
     "@types/gtag.js": "0.0.4",
     "@types/jquery": "^3.5.2",
