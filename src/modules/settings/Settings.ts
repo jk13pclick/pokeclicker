@@ -7,7 +7,10 @@ export default class Settings {
     static list: Setting<any>[] = [];
 
     static add(setting: Setting<any>) {
-        if (!this.getSetting(setting.name)) {
+        if (!setting.name) {
+            // eslint-disable-next-line no-console
+            console.warn(`Cannot add settings with no name (display name: '${setting.defaultDisplayName}')`);
+        } else if (!this.getSetting(setting.name)) {
             this.list.push(setting);
         }
     }
@@ -25,17 +28,26 @@ export default class Settings {
         return this.list.find((setting) => setting.name === name) || null;
     }
 
-    static toJSON() {
+    static toJSON(saveAsDefaultsOnly = false) {
         const json = {};
-        this.list.forEach((setting) => {
+        this.list.filter((setting) => !saveAsDefaultsOnly || setting.saveAsDefault).forEach((setting) => {
             json[setting.name] = setting.value;
         });
         return json;
     }
 
-    static fromJSON(dict) {
-        Object.entries(dict || {})?.forEach(([name, value]) => {
+    static fromJSON(dict: Record<string, unknown>) {
+        Object.entries(dict).forEach(([name, value]) => {
             this.setSettingByName(name, value);
+        });
+    }
+
+    static checkAndFix() {
+        this.list.forEach((setting) => {
+            if (!setting.validValue(setting.value)) {
+                console.warn(`Resetting ${setting.name} to default from invalid value ${setting.value}`);
+                setting.set(setting.defaultValue);
+            }
         });
     }
 
@@ -54,15 +66,17 @@ export default class Settings {
     }
 
     static saveDefault() {
-        localStorage.setItem('settings', JSON.stringify(Settings.toJSON()));
+        localStorage.setItem('settings', JSON.stringify(Settings.toJSON(true)));
     }
 
     static loadDefault() {
-        const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+        const loadedJSON = JSON.parse(localStorage.getItem('settings') || '{}');
+        const validatedJSON = {};
         this.list.forEach((setting) => {
-            settings[setting.name] = settings[setting.name] ?? setting.defaultValue;
+            const currentVal = loadedJSON[setting.name];
+            validatedJSON[setting.name] = (currentVal !== undefined && setting.validValue(currentVal)) ? currentVal : setting.defaultValue;
         });
-        this.fromJSON(settings);
+        this.fromJSON(validatedJSON);
     }
 
     static resetDefault() {

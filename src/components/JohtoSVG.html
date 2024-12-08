@@ -398,6 +398,14 @@
         })
      %>
 
+    <!--National Park-->
+    <%- include('templates/mapTown',
+        { name: "National Park"
+        , x: 22, y: 14.5
+        , width: 6, height: 4.5
+        })
+    %>
+
     <!--Ecruteak City-->
     <%- include('templates/mapTown',
         { name: "Ecruteak City"
@@ -725,7 +733,7 @@
         { name: "Underground Entrance"
         , x: 39, y: 29
         , width: 3, height: 4
-        , databind: "click:function(){App.game.underground.openUndergroundModal()}, attr: { class: App.game.underground.canAccess() ? 'completed' : 'locked' }"
+        , databind: "click:function(){UndergroundController.openUndergroundModal()}, attr: { class: App.game.underground.canAccess() ? 'completed' : 'locked' }"
         })
      %>
 
@@ -746,7 +754,7 @@
      %>
 
      <%- include('templates/mapPOI',
-        { name: "Route 22"
+        { name: "Kanto Route 22"
         , width: 4, height: 3
         , x: 96, y: 26
         , databind: `attr: { class: MapHelper.accessToRoute(22, GameConstants.Region.johto) ? 'unlockedRoute' : 'lockedRoute' },
@@ -756,25 +764,12 @@
         })
      %>
 
-     <%- include('templates/mapOverlay',
-         { name: "Professor Elm's Blimp"
-         , x: 74, y: 45
-         , width: 6, height: 3
-         , databind: "click:function(){MapHelper.moveToTown('New Bark Town')}, attr:{ class: MapHelper.calculateTownCssClass('New Bark Town') }"
-         , visible:  "MapHelper.ableToTravel() && player.regionStarters[GameConstants.Region.kanto]() != GameConstants.Starter.Special"
-         , image: "assets/images/map/blimp_empty.png"
-         })
-     %>
-
-     <%- include('templates/mapOverlay',
-         { name: "Professor Elm's Blimp"
-         , x: 74, y: 45
-         , width: 6, height: 3
-         , databind: "click:function(){MapHelper.moveToTown('New Bark Town')}, attr:{ class: MapHelper.calculateTownCssClass('New Bark Town') }"
-         , visible:  "MapHelper.ableToTravel() && player.regionStarters[GameConstants.Region.kanto]() == GameConstants.Starter.Special"
-         , image: "assets/images/map/blimp_pikachu.png"
-         })
-     %>
+    <%- include('templates/mapBlimp',
+        { name: "Professor Elm"
+        , x: 74, y: 45
+        , town: "New Bark Town"
+        })
+    %>
 
      <%- include('templates/mapOverlay',
          { name: "Sudowoodo"
@@ -855,6 +850,28 @@
          , image: "assets/images/map/silver.png"
          })
      %>
+
+    <%- include('templates/mapOverlay',
+        { name: "Red"
+        , x: 79, y: 19.5
+        , width: 4, height: 4
+        , databind: `click: () => {
+            Notifier.notify({message: '...'});
+        }`
+        , visible:  "App.game.badgeCase.hasBadge(BadgeEnums.Elite_JohtoChampion)"
+        , image: "assets/images/map/red-back.png"
+        })
+    %>
+
+    <%- include('templates/mapOverlay',
+        { name: "Red"
+        , x: 79, y: 19.5
+        , width: 4, height: 4
+        , databind: "click: () => TemporaryBattleList['Red'].protectedOnclick()"
+        , visible:  "TemporaryBattleList['Red'] && TemporaryBattleList['Red'].isVisible()"
+        , image: "assets/images/map/red.png"
+        })
+    %>
 
      <%- include('templates/mapOverlay',
          { name: "Ash Ketchum"

@@ -1,5 +1,3 @@
-/// <reference path="./GameConstants.d.ts" />
-
 class Update implements Saveable {
     defaults: Record<string, any>;
     saveKey = 'update';
@@ -2225,6 +2223,9 @@ class Update implements Saveable {
             saveData.party.caughtPokemon.forEach(p => {
                 delete p[14]; // megaStone
             });
+
+            // Hopo Berry
+            saveData.farming.mutations = Update.moveIndex(saveData.farming.mutations, 70);
         },
 
         '0.10.12': ({ playerData, saveData, settingsData }) => {
@@ -2458,8 +2459,8 @@ class Update implements Saveable {
             saveData.statistics.temporaryBattleDefeated[31] = 0;
 
         },
-        '0.10.16': ({ playerData, saveData, settingsData }) => {
 
+        '0.10.16': ({ saveData, settingsData }) => {
 
             // Fix None category color being incomplete
             if (saveData.categories.categories[0].color === '#333') {
@@ -2473,6 +2474,372 @@ class Update implements Saveable {
                 }
                 return q;
             }) || [];
+
+            // Add Genesect Quest Battles
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 122);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 123);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 124);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 125);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 126);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 127);
+
+            // Remove erroneous BreedingFilter search setting
+            delete settingsData[''];
+
+            // Remove Z Crystal gyms and badges (remove furthest down the index first as to not get confused by index numbers)
+            // Mina\'s Trial
+            saveData.statistics.gymsDefeated.splice(88, 1);
+            // Vast Poni Canyon Trial
+            saveData.statistics.gymsDefeated.splice(87, 1);
+            // Acerola\'s Trial
+            saveData.statistics.gymsDefeated.splice(85, 1);
+            // Sophocles\' Trial
+            saveData.statistics.gymsDefeated.splice(84, 1);
+            // Mallow\'s Trial
+            saveData.statistics.gymsDefeated.splice(82, 1);
+            // Kiawe\'s Trial
+            saveData.statistics.gymsDefeated.splice(81, 1);
+            // Lana\'s Trial
+            saveData.statistics.gymsDefeated.splice(80, 1);
+            // Ilima\'s Trial
+            saveData.statistics.gymsDefeated.splice(78, 1);
+            // FairiumZ
+            saveData.badgeCase.splice(103, 1);
+            // DragoniumZ
+            saveData.badgeCase.splice(102, 1);
+            // GhostiumZ
+            saveData.badgeCase.splice(100, 1);
+            // ElectriumZ
+            saveData.badgeCase.splice(99, 1);
+            // GrassiumZ
+            saveData.badgeCase.splice(97, 1);
+            // FiriumZ
+            saveData.badgeCase.splice(96, 1);
+            // WateriumZ
+            saveData.badgeCase.splice(95, 1);
+            // NormaliumZ
+            saveData.badgeCase.splice(93, 1);
+
+            // Santa Jynx TempBattles
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 15);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 15);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 15);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 15);
+
+            // Fix Hopo berry visible in berrydex when not available
+            saveData.farming.mutations[71] = false;
+        },
+
+        '0.10.17': ({ saveData }) => {
+            // Fix Anomaly Mewtwo 5 if the quest is not completed.
+            if (saveData.quests.questLines.find(ql => ql.name === 'An Unrivaled Power')?.state < 2) {
+                saveData.statistics.temporaryBattleDefeated[223] = 0;
+            }
+        },
+
+        '0.10.18': ({ playerData, saveData, settingsData }) => {
+            // Actually fix Anomaly Mewtwo 5 if the quest is not completed.
+            if ((saveData.quests.questLines.find(ql => ql.name === 'An Unrivaled Power')?.state ?? 0) !== 2) {
+                saveData.statistics.temporaryBattleDefeated[223] = 0;
+            }
+
+            // Give the player Fairy Feathers in place of Pink Bows
+            playerData._itemList.Fairy_Feather = playerData._itemList.Pink_Bow || 0;
+            delete playerData._itemList.Pink_Bow;
+
+            // Update pokemon held item Pink Bow -> Fairy Feather
+            saveData.party.caughtPokemon.forEach(p => {
+                if (p[10] === 'Pink_Bow') {
+                    p[10] = 'Fairy_Feather';
+                }
+            });
+
+            // ID to itemName interface
+            const converter = {
+                1 : 'Rare_bone', 2 : 'Star_piece', 3 : 'Revive', 4 : 'Max_revive', 5 : 'Iron_ball', 6 : 'Heart_scale', 7 : 'Light_clay', 8 : 'Odd_keystone', 9 : 'Hard_stone', 10 : 'Oval_stone', 11 : 'Everstone', 12 : 'Smooth_rock', 13 : 'Heat_rock', 14 : 'Icy_rock', 15 : 'Damp_rock',
+                100 : 'Draco_plate', 101 : 'Dread_plate', 102 : 'Earth_plate', 103 : 'Fist_plate', 104 : 'Flame_plate', 105 : 'Icicle_plate', 106 : 'Insect_plate', 107 : 'Iron_plate', 108 : 'Meadow_plate', 109 : 'Mind_plate', 110 : 'Sky_plate', 111 : 'Splash_plate', 112 : 'Spooky_plate', 113 : 'Stone_plate', 114 : 'Toxic_plate', 115 : 'Zap_plate', 116 : 'Pixie_plate',
+                200 : 'Helix_fossil', 201 : 'Dome_fossil', 202 : 'Old_amber', 203 : 'Root_fossil', 204 : 'Claw_fossil', 205 : 'Armor_fossil', 206 : 'Skull_fossil', 207 : 'Cover_fossil', 208 : 'Plume_fossil', 209 : 'Jaw_fossil', 210 : 'Sail_fossil', 211 : 'Fossilized_bird', 212 : 'Fossilized_fish', 213 : 'Fossilized_drake', 214 : 'Fossilized_dino',
+                300 : 'Fire_stone', 301 : 'Water_stone', 302 : 'Thunder_stone', 303 : 'Leaf_stone', 304 : 'Moon_stone', 305 : 'Sun_stone', 306 : 'Shiny_stone', 307 : 'Dusk_stone', 308 : 'Dawn_stone', 309 : 'Ice_stone',
+                400 : 'Red_shard', 401 : 'Yellow_shard', 402 : 'Green_shard', 403 : 'Blue_shard', 404 : 'Grey_shard', 405 : 'Purple_shard', 406 : 'Ochre_shard', 407 : 'Black_shard', 408 : 'Crimson_shard', 409 : 'Lime_shard', 410 : 'White_shard', 411 : 'Pink_shard', 412 : 'Cyan_shard', 413 : 'Rose_shard', 414 : 'Brown_shard',
+                500 : 'Aerodactylite', 501 : 'Mawilite', 502 : 'Sablenite',
+            };
+            // Port player.mineInventory to player.itemList
+            const sellLocks = (saveData.underground.sellLocks = {});
+            playerData.mineInventory.forEach(it => {
+                if (!converter[it.id]) {
+                    return console.error(`${it.name} is not a valid item to store.`);
+                }
+                playerData._itemList[converter[it.id]] = (playerData._itemList[converter[it.id]] || 0) + it.amount;
+                sellLocks[converter[it.id]] = it.sellLocked;
+            });
+
+            // Update sort settings to make room for new attack at lv 100 sort option
+            ['hatcherySort', 'partySort', 'vitaminSort', 'heldItemSort', 'consumableSort']
+                .forEach((sortSetting) => {
+                    if (settingsData[sortSetting] >= 5) {
+                        settingsData[sortSetting]++;
+                    }
+                });
+            // Sort by attack -> sort by attack at lv100
+            if (settingsData.hatcherySort == 2) {
+                settingsData.hatcherySort = 5;
+            }
+            // Update hatchery helper sorting
+            saveData.breeding.hatcheryHelpers?.forEach(helper => {
+                if (helper.sortOption >= 5) {
+                    // Move index
+                    helper.sortOption++;
+                } else if (helper.sortOption == 2) {
+                    // Sort by attack -> sort by attack at lv100
+                    helper.sortOption = 5;
+                }
+            });
+
+            // Fix pokerus status for party members infected via shop eggs
+            saveData.party.caughtPokemon.forEach(pokemon => {
+                // PartyPokemonSaveKeys.pokerus and .breeding
+                if (pokemon[8] === GameConstants.Pokerus.Infected && !pokemon[4]) {
+                    pokemon[8] = GameConstants.Pokerus.Contagious;
+                }
+            });
+
+            // Preserve bottom-to-top catch filter priority for existing players
+            settingsData['catchFilters.invertPriorityOrder'] = true;
+        },
+
+        '0.10.19': ({ playerData, saveData, settingsData }) => {
+            // Update hatchery helper sorting (again)
+            saveData.breeding.hatcheryHelpers?.forEach(helper => {
+                if (helper.sortOption == 2) {
+                    // Sort by attack -> sort by attack at lv100
+                    helper.sortOption = 5;
+                }
+            });
+        },
+
+        '0.10.20': ({ playerData, saveData, settingsData }) => {
+            // Add Olivine Lighthouse dungeon
+            saveData.statistics.dungeonsCleared = Update.moveIndex(saveData.statistics.dungeonsCleared, 29);
+
+            if (saveData.badgeCase[17]) {
+                Update.startQuestLine(saveData, 'The Sick Ampharos');
+            }
+
+            // Multicategory pokemon
+            saveData.party.caughtPokemon.forEach(pokemon => {
+                pokemon[6] = [pokemon[6] ?? 0];
+            });
+
+            // Add Alola story battles
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 225);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 227);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 228);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 229);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 230);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 236);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 237);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 242);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 243);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 244);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 245);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 248);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 249);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 250);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 251);
+            saveData.statistics.temporaryBattleDefeated = Update.moveIndex(saveData.statistics.temporaryBattleDefeated, 262);
+            // Reset temporary battles important to story
+            saveData.statistics.temporaryBattleDefeated[247] = 0; // Gladion 2
+            saveData.statistics.temporaryBattleDefeated[252] = 0; // Necrozma
+            saveData.statistics.temporaryBattleDefeated[253] = 0; // Ultra Megalopolis
+            saveData.statistics.temporaryBattleDefeated[261] = 0; // Gladion 3
+            // Reset questline Eater of Light if it exists in the save
+            const eaterID = saveData.quests.questLines.findIndex(ql => ql.name == 'Eater of Light');
+            if (eaterID > -1) {
+                saveData.quests.questLines.splice(eaterID, 1);
+            }
+            // Reset/Remove questline Mina\'s Trial if in the save
+            const minaID = saveData.quests.questLines.findIndex(ql => ql.name == 'Mina\'s Trial');
+            if (minaID > -1) {
+                saveData.quests.questLines.splice(minaID, 1);
+            }
+            // Reset Mina\'s Trial temporary battles
+            saveData.statistics.temporaryBattleDefeated[254] = 0;
+            saveData.statistics.temporaryBattleDefeated[255] = 0;
+            saveData.statistics.temporaryBattleDefeated[256] = 0;
+            saveData.statistics.temporaryBattleDefeated[257] = 0;
+            saveData.statistics.temporaryBattleDefeated[258] = 0;
+            saveData.statistics.temporaryBattleDefeated[259] = 0;
+            saveData.statistics.temporaryBattleDefeated[260] = 0;
+            // Start Alola story quests if player has beaten temp battles already
+            // Hau 1
+            if (saveData.statistics.temporaryBattleDefeated[224]) {
+                Update.startQuestLine(saveData, 'Welcome to Paradise, Cousin!');
+            }
+            /* Uncomment and move once Z-Moves are ready
+            // Give Z-Power_Ring key item if Hau 2 defeated
+            if (saveData.statistics.temporaryBattleDefeated[226]) {
+                saveData.keyItems['Z-Power_Ring'] = true;
+                KeyItemController.showGainModal(KeyItemType['Z-Power_Ring']);
+            }*/
+            // Sina and Dexio
+            if (saveData.statistics.temporaryBattleDefeated[232] && saveData.statistics.temporaryBattleDefeated[233]) {
+                Update.startQuestLine(saveData, 'Symbiotic Relations');
+            }
+            // Hau 5
+            if (saveData.statistics.temporaryBattleDefeated[241]) {
+                Update.startQuestLine(saveData, 'Child of the Stars');
+            }
+
+            // Reimburse Survey Efficiency upgrade
+            const surveyEfficiencyLevel = saveData.underground.upgrades.Survey_Efficiency;
+            if (surveyEfficiencyLevel) {
+                const surveyEfficiencyCost = GameHelper.createArray(100, 400, 100);
+                const investedDiamonds = surveyEfficiencyCost.slice(0, surveyEfficiencyLevel).reduce((acc, cur) => acc + cur, 0);
+                saveData.wallet.currencies[GameConstants.Currency.diamond] += investedDiamonds;
+            }
+
+            // The NewYLayer upgrades has been refactored to Items_All, copy the level
+            saveData.underground.upgrades.Items_All = saveData.underground.upgrades.NewYLayer;
+
+        },
+
+        '0.10.21': ({ playerData, saveData, settingsData }) => {
+            // Rename settings to match pokedex filter name convention
+            settingsData.breedingType1Filter = settingsData.breedingTypeFilter1;
+            delete settingsData.breedingTypeFilter1;
+            settingsData.breedingType2Filter = settingsData.breedingTypeFilter2;
+            delete settingsData.breedingTypeFilter2;
+            // Rename settings to accurately describe purpose
+            settingsData.pokedexCaughtFilter = settingsData.pokedexShinyFilter;
+            delete settingsData.pokedexShinyFilter;
+            settingsData.breedingDisplayTextSetting = settingsData.breedingDisplayFilter;
+            delete settingsData.breedingDisplayFilter;
+
+            // Update breeding filters to use numeric values
+            ['breedingCategoryFilter', 'breedingShinyFilter', 'breedingType1Filter', 'breedingType2Filter', 'breedingRegionFilter', 'breedingPokerusFilter', 'breedingRegionalAttackDebuffSetting']
+                .forEach((filter) => {
+                    const convertedValue = Number.parseInt(settingsData[filter]);
+                    if (!Number.isNaN(convertedValue)) {
+                        settingsData[filter] = convertedValue;
+                    } else {
+                        delete settingsData[filter];
+                    }
+                });
+            // Update breedingHideAltFilter to use actual booleans
+            settingsData.breedingHideAltFilter = settingsData.breedingHideAltFilter === 'true';
+            // Update breeding type filters to use null for 'any type', matching the pokedex filters
+            if (settingsData.breedingType1Filter == -2) {
+                settingsData.breedingType1Filter = null;
+            }
+            if (settingsData.breedingType2Filter == -2) {
+                settingsData.breedingType2Filter = null;
+            }
+            // Pokémon Center renamed
+            if (playerData._townName == 'Route 3 Pokémon Center') {
+                playerData._townName = 'Route 4 Pokémon Center';
+            }
+
+            // Fix all weird amounts of Pokéballs
+            saveData.pokeballs.pokeballs = saveData.pokeballs.pokeballs.map(n => Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, n)));
+
+            // Fix pokemon multi-category bug from 0.10.20 update for very old files
+            saveData.party.caughtPokemon.forEach(pokemon => {
+                if (!Array.isArray(pokemon[6])) {
+                    pokemon[6] = [pokemon[6] ?? 0];
+                }
+            });
+
+            // Reset settings that the player shouldn't have access to yet but might have been
+            // set as default from a different file
+            if (playerData.highestRegion < 5) { // Kalos
+                settingsData.pokedexUniqueTransformationFilter = 'all';
+                settingsData.breedingUniqueTransformationFilter = 'all';
+            }
+            if (!saveData.challenges.list.regionalAttackDebuff) {
+                settingsData.breedingRegionalAttackDebuffSetting = '-1';
+            }
+        },
+
+        '0.10.22': ({ playerData, saveData, settingsData }) => {
+            // Reimburse and reset the underground upgrades
+            const upgradeCostMap = {
+                'Energy_Max': GameHelper.createArray(50, 500, 50),
+                'Items_Max': GameHelper.createArray(200, 800, 200),
+                'Items_Min': GameHelper.createArray(500, 5000, 1500),
+                'Energy_Gain': GameHelper.createArray(100, 1700, 100),
+                'Energy_Regen_Time': GameHelper.createArray(20, 400, 20),
+                'Daily_Deals_Max': GameHelper.createArray(150, 300, 150),
+                'Bomb_Efficiency': GameHelper.createArray(50, 250, 50),
+                'Survey_Cost': GameHelper.createArray(50, 250, 50),
+                'Items_All': GameHelper.createArray(3000, 3000, 3000),
+                'Reduced_Shards': GameHelper.createArray(750, 750, 750),
+                'Reduced_Plates': GameHelper.createArray(1000, 1000, 1000),
+                'Reduced_Evolution_Items': GameHelper.createArray(500, 500, 500),
+                'Reduced_Fossil_Pieces': GameHelper.createArray(200, 200, 200),
+            };
+
+            const totalReimburse = Object.entries(saveData.underground.upgrades).map(([key, value]) => {
+                return upgradeCostMap[key]?.slice(0, value).reduce((acc, cur) => acc + cur, 0) ?? 0;
+            }).reduce((acc, cur) => acc + cur, 0);
+            saveData.underground.upgrades = {};
+            saveData.wallet.currencies[GameConstants.Currency.diamond] += totalReimburse;
+
+            if (totalReimburse > 0) {
+                Notifier.notify({
+                    title: 'Underground refund',
+                    type: NotificationConstants.NotificationOption.info,
+                    timeout: GameConstants.DAY,
+                    message: `The old Underground upgrade system has been removed due to recent changes.
+                    We have refunded ${totalReimburse.toLocaleString('en-US')} <img src="./assets/images/currency/diamond.svg" height="24px"/> to your wallet.`,
+                });
+            }
+
+            if (saveData.keyItems.Explorer_kit) {
+                Notifier.notify({
+                    title: 'Underground changes',
+                    type: NotificationConstants.NotificationOption.warning,
+                    timeout: GameConstants.DAY,
+                    message: `The Underground has been overhauled! Check out the Underground Help tab for all the details on the new features and how everything works. Dive in and explore the changes!
+                    <button class="btn btn-block btn-secondary" onclick="UndergroundController.openUndergroundModal()" data-dismiss="toast">Open Underground</button>`,
+                });
+            }
+
+            // Remove the old underground save data
+            saveData.underground = null;
+
+            // Reset the Cell Battery
+            saveData.oakItems[OakItemType[OakItemType.Cell_Battery]].level = 0;
+            saveData.oakItems[OakItemType[OakItemType.Cell_Battery]].exp = 0;
+
+            // Reset Key Stone multiplier
+            delete playerData._itemMultipliers.Key_stone;
+
+            // Held item setting change
+            settingsData.heldItemHideHoldingThisItem = settingsData.heldItemShowHoldingThisItem;
+            delete settingsData.heldItemShowHoldingThisItem;
+
+            // Simplify farm module settings
+            if (settingsData.showFarmModule === false) {
+                settingsData.showFarmModule = 'never';
+            } else {
+                settingsData.showFarmModule = settingsData.showFarmModuleControls === false ? 'limited' : 'extended';
+            }
+            delete settingsData.showFarmModuleControls;
+            // Pokémon Center renamed
+            if (playerData._townName == 'Pokemon HQ Lab') {
+                playerData._townName = 'Pokémon HQ Lab';
+            }
+        },
+
+        '0.10.23': ({ playerData, saveData, settingsData }) => {
+            // Remove easier-to-fix locale misformatting from underground grid item tiles
+            saveData.underground?.mine.grid.map(t => t.reward).filter(r => r).forEach(r => {
+                if (!r.backgroundPosition.match(/^\d+% \d+%$/)) {
+                    r.backgroundPosition = r.backgroundPosition.replaceAll(',', '.');
+                    r.backgroundPosition = r.backgroundPosition.replace(/^([\d.]+)\s% ([\d.]+)\s%$/, '$1% $2%');
+                    r.backgroundPosition = r.backgroundPosition.replace(/^%\s([\d.]+) %\s([\d.]+)$/, '$1% $2%');
+                }
+            });
         },
     };
 
@@ -2533,7 +2900,7 @@ class Update implements Saveable {
         const settingsData = this.getSettingsData();
 
         // Save the data by stringifying it, so that it isn't mutated during update
-        const backupSaveData = JSON.stringify({ player: playerData, save: saveData });
+        const backupSaveData = JSON.stringify({ player: playerData, save: saveData, settings: settingsData });
 
         const button = document.createElement('a');
         try {

@@ -10,7 +10,7 @@ class QuestLine {
     private pausableStates = [GameConstants.GameState.town, GameConstants.GameState.fighting];
 
     constructor(
-        public name: string,
+        public name: QuestLineNameType,
         public description: string,
         public requirement?: Requirement,
         public bulletinBoard: GameConstants.BulletinBoards = GameConstants.BulletinBoards.None,
@@ -62,6 +62,7 @@ class QuestLine {
         this.totalQuests++;
         quest.index = this.totalQuests;
         quest.inQuestLine = true;
+        quest.parentQuestLine = this;
         quest.createAutoCompleter();
         this.quests.push(quest);
     }
@@ -79,7 +80,7 @@ class QuestLine {
         if (notifyStart) {
             Notifier.notify({
                 title: 'New Quest Line Started!',
-                message: `${quest.description}\n<i>"${this.name}" added to the Quest List!</i>`,
+                message: `${this.description}\n<i>"${this.name}" added to the Quest List!</i>`,
                 type: NotificationConstants.NotificationOption.success,
                 timeout: 5 * GameConstants.MINUTE,
             });

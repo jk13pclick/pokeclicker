@@ -4,7 +4,6 @@ import { ItemList } from '../items/ItemList';
 import NotificationConstants from '../notifications/NotificationConstants';
 import Notifier from '../notifications/Notifier';
 import Amount from '../wallet/Amount';
-import { Underground } from './Underground';
 import UndergroundItem from './UndergroundItem';
 import UndergroundItems from './UndergroundItems';
 
@@ -18,6 +17,7 @@ export class ShardDeal {
     public shards: ShardCost[];
     public item: { itemType: Item, amount: number };
     public questPointCost: number;
+    public currencyType: Currency;
     public static list: Partial<Record<ShardTraderLocations, KnockoutObservableArray<ShardDeal>>> = {};
 
     constructor(shardCosts: ShardCost[], item: Item, itemAmount: number) {
@@ -25,6 +25,11 @@ export class ShardDeal {
         this.shards.forEach((s) => { s.shardType = UndergroundItems.getByName(s.shardTypeString); });
         this.item = { itemType: item, amount: itemAmount };
         this.questPointCost = this.item.itemType.basePrice / 4 || 1;
+        this.currencyType = this.item.itemType.currency ?? Currency.questPoint;
+    }
+
+    public isVisible(): boolean {
+        return this.item.itemType.isVisible();
     }
 
     public static getDeals(town: ShardTraderLocations) {
@@ -38,10 +43,10 @@ export class ShardDeal {
         }
         if (ItemList[deal.item.itemType.name].isSoldOut()) {
             return false;
-        } else if (deal.questPointCost > App.game.wallet.currencies[Currency.questPoint]()) {
+        } else if (deal.questPointCost > App.game.wallet.currencies[deal.currencyType]()) {
             return false;
         } else {
-            return deal.shards.every((value) => player.getUndergroundItemAmount(value.shardType.id) >= value.amount);
+            return deal.shards.every((value) => player.itemList[value.shardType.itemName]() >= value.amount);
         }
     }
 
@@ -49,18 +54,18 @@ export class ShardDeal {
         const deal = ShardDeal.list[town]?.peek()[i];
         if (ShardDeal.canUse(town, i)) {
             const trades = deal.shards.map(shard => {
-                const amt = player.getUndergroundItemAmount(shard.shardType.id);
+                const amt = player.itemList[shard.shardType.itemName]();
                 const maxShardTrades = Math.floor(amt / shard.amount);
                 return maxShardTrades;
             });
-            const qp = App.game.wallet.currencies[Currency.questPoint]();
+            const qp = App.game.wallet.currencies[deal.currencyType]();
             const maxCurrencyTrades = Math.floor(qp / deal.questPointCost);
             const maxTrades = Math.min(maxCurrencyTrades, trades.reduce((a, b) => Math.min(a, b), tradeTimes));
-            deal.shards.forEach((value) => Underground.gainMineItem(value.shardType.id, -value.amount * maxTrades));
+            deal.shards.forEach((value) => player.loseItem(value.shardType.itemName, value.amount * maxTrades));
 
             const amount = deal.item.amount * maxTrades;
             deal.item.itemType.gain(deal.item.amount * maxTrades);
-            App.game.wallet.loseAmount(new Amount(deal.questPointCost * maxTrades, Currency.questPoint));
+            App.game.wallet.loseAmount(new Amount(deal.questPointCost * maxTrades, deal.currencyType));
             Notifier.notify({
                 message: `You traded for ${amount.toLocaleString('en-US')} × <img src="${deal.item.itemType.image}" height="24px"/> ${pluralizeString(humanifyString(deal.item.itemType.displayName), amount)}.`,
                 type: NotificationConstants.NotificationOption.success,
@@ -478,7 +483,7 @@ export class ShardDeal {
                     1),
             ],
         );
-        ShardDeal.list[ShardTraderLocations['Pokemon HQ Lab']] = ko.observableArray(
+        ShardDeal.list[ShardTraderLocations['Pokémon HQ Lab']] = ko.observableArray(
             [
                 new ShardDeal(
                     [{ shardTypeString: 'Blue Shard', amount: 40 }],
@@ -573,11 +578,92 @@ export class ShardDeal {
                     ],
                     ItemList.Deepsea_scale,
                     1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Yellow Shard', amount: 20 },
+                        { shardTypeString: 'Crimson Shard', amount: 30 },
+                    ],
+                    ItemList.Shiny_stone,
+                    1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Blue Shard', amount: 20 },
+                        { shardTypeString: 'Crimson Shard', amount: 30 },
+                    ],
+                    ItemList.Dusk_stone,
+                    1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Green Shard', amount: 20 },
+                        { shardTypeString: 'Crimson Shard', amount: 20 },
+                    ],
+                    ItemList.Dawn_stone,
+                    1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Red Shard', amount: 20 },
+                        { shardTypeString: 'Lime Shard', amount: 30 },
+                    ],
+                    ItemList.Razor_claw,
+                    1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Blue Shard', amount: 20 },
+                        { shardTypeString: 'Lime Shard', amount: 20 },
+                    ],
+                    ItemList.Razor_fang,
+                    1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Yellow Shard', amount: 20 },
+                        { shardTypeString: 'White Shard', amount: 30 },
+                    ],
+                    ItemList.Electirizer,
+                    1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Red Shard', amount: 20 },
+                        { shardTypeString: 'White Shard', amount: 30 },
+                    ],
+                    ItemList.Magmarizer,
+                    1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Green Shard', amount: 20 },
+                        { shardTypeString: 'Black Shard', amount: 30 },
+                    ],
+                    ItemList.Protector,
+                    1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Yellow Shard', amount: 20 },
+                        { shardTypeString: 'Black Shard', amount: 30 },
+                    ],
+                    ItemList.Dubious_disc,
+                    1),
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Blue Shard', amount: 20 },
+                        { shardTypeString: 'Black Shard', amount: 30 },
+                    ],
+                    ItemList.Reaper_cloth,
+                    1),
             ],
         );
     }
 
     public static generateSinnohDeals() {
+        ShardDeal.list[ShardTraderLocations['Sandgem Town']] = ko.observableArray(
+            [
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Meadow Plate', amount: 5 },
+                        { shardTypeString: 'Pixie Plate', amount: 5 },
+                    ],
+                    ItemList['Elf Munchlax'],
+                    1),
+            ],
+        );
         ShardDeal.list[ShardTraderLocations['Oreburgh City']] = ko.observableArray(
             [
                 new ShardDeal(
@@ -647,6 +733,12 @@ export class ShardDeal {
         );
         ShardDeal.list[ShardTraderLocations['Solaceon Town']] = ko.observableArray(
             [
+                new ShardDeal(
+                    [
+                        { shardTypeString: 'Odd Keystone', amount: 1 },
+                    ],
+                    ItemList.Spiritomb,
+                    1),
                 new ShardDeal(
                     [
                         { shardTypeString: 'Yellow Shard', amount: 20 },
@@ -1340,18 +1432,18 @@ export class ShardDeal {
             [
                 new ShardDeal(
                     [
-                        { shardTypeString: 'Red Shard', amount: 5000 },
-                        { shardTypeString: 'Yellow Shard', amount: 5000 },
-                        { shardTypeString: 'Green Shard', amount: 5000 },
-                        { shardTypeString: 'Blue Shard', amount: 5000 },
-                        { shardTypeString: 'Grey Shard', amount: 2000 },
-                        { shardTypeString: 'Purple Shard', amount: 2000 },
-                        { shardTypeString: 'Ochre Shard', amount: 2000 },
-                        { shardTypeString: 'Black Shard', amount: 1000 },
-                        { shardTypeString: 'Crimson Shard', amount: 1000 },
-                        { shardTypeString: 'Lime Shard', amount: 1000 },
-                        { shardTypeString: 'White Shard', amount: 1000 },
-                        { shardTypeString: 'Pink Shard', amount: 500 },
+                        { shardTypeString: 'Red Shard', amount: 2500 },
+                        { shardTypeString: 'Yellow Shard', amount: 2500 },
+                        { shardTypeString: 'Green Shard', amount: 2500 },
+                        { shardTypeString: 'Blue Shard', amount: 2500 },
+                        { shardTypeString: 'Grey Shard', amount: 1000 },
+                        { shardTypeString: 'Purple Shard', amount: 1000 },
+                        { shardTypeString: 'Ochre Shard', amount: 1000 },
+                        { shardTypeString: 'Black Shard', amount: 500 },
+                        { shardTypeString: 'Crimson Shard', amount: 500 },
+                        { shardTypeString: 'Lime Shard', amount: 500 },
+                        { shardTypeString: 'White Shard', amount: 500 },
+                        { shardTypeString: 'Pink Shard', amount: 250 },
                     ],
                     ItemList['Furfrou (Star)'],
                     1),
@@ -1934,26 +2026,6 @@ export class ShardDeal {
                         { shardTypeString: 'Brown Shard', amount: 30 },
                     ],
                     ItemList.Galarica_wreath,
-                    1),
-            ],
-        );
-    }
-    public static generateHisuiDeals() {
-        ShardDeal.list[ShardTraderLocations['Jubilife Village']] = ko.observableArray(
-            [
-                new ShardDeal(
-                    [
-                        { shardTypeString: 'Red Shard', amount: 20 },
-                        { shardTypeString: /*'Beige Shard'*/'Brown Shard', amount: 30 },
-                    ],
-                    ItemList.Black_augurite,
-                    1),
-                new ShardDeal(
-                    [
-                        { shardTypeString: 'Yellow Shard', amount: 20 },
-                        { shardTypeString: /*'Beige Shard'*/'Brown Shard', amount: 30 },
-                    ],
-                    ItemList.Peat_block,
                     1),
             ],
         );

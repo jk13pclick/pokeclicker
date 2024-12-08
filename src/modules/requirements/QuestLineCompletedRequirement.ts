@@ -1,5 +1,6 @@
 import { AchievementOption } from '../GameConstants';
 import QuestLineState from '../quests/QuestLineState';
+import { QuestLineNameType } from '../quests/QuestLineNameType';
 
 import Requirement from './Requirement';
 
@@ -12,7 +13,7 @@ export default class QuestLineCompletedRequirement extends Requirement {
         return this.cachedQuest;
     }
 
-    constructor(private questLineName: string, option = AchievementOption.equal) {
+    constructor(private questLineName: QuestLineNameType, option = AchievementOption.equal) {
         super(1, option);
     }
 
@@ -21,6 +22,6 @@ export default class QuestLineCompletedRequirement extends Requirement {
     }
 
     public hint(): string {
-        return `Questline ${this.questLineName} needs to be completed.`;
+        return `Questline ${this.questLineName} needs to be ${this.option !== AchievementOption.less ? 'completed' : 'incomplete'}.`;
     }
 }

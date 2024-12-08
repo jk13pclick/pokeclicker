@@ -880,7 +880,7 @@
         { name: "Underground Entrance"
         , x: 54, y: 36
         , width: 3, height: 4
-        , databind: "click:function(){App.game.underground.openUndergroundModal()}, attr: { class: App.game.underground.canAccess() ? 'completed' : 'locked' }"
+        , databind: "click:function(){UndergroundController.openUndergroundModal()}, attr: { class: App.game.underground.canAccess() ? 'completed' : 'locked' }"
         })
     %>
 
@@ -900,23 +900,10 @@
         })
     %>
 
-    <%- include('templates/mapOverlay',
-        { name: "Professor Juniper's Blimp"
-        , x: 10, y: 48
-        , width: 6, height: 3
-        , databind: "click:function(){MapHelper.moveToTown('Aspertia City')}, attr:{ class: MapHelper.calculateTownCssClass('Aspertia City') }"
-        , visible:  "MapHelper.ableToTravel() && player.regionStarters[GameConstants.Region.kanto]() != GameConstants.Starter.Special"
-        , image: "assets/images/map/blimp_empty.png"
-        })
-    %>
-
-    <%- include('templates/mapOverlay',
-        { name: "Professor Juniper's Blimp"
-        , x: 10, y: 48
-        , width: 6, height: 3
-        , databind: "click:function(){MapHelper.moveToTown('Aspertia City')}, attr:{ class: MapHelper.calculateTownCssClass('Aspertia City') }"
-        , visible:  "MapHelper.ableToTravel() && player.regionStarters[GameConstants.Region.kanto]() == GameConstants.Starter.Special"
-        , image: "assets/images/map/blimp_pikachu.png"
+    <%- include('templates/mapBlimp',
+        { name: "Professor Juniper"
+        , x: 11, y: 48
+        , town: "Aspertia City"
         })
     %>
 
@@ -1029,5 +1016,46 @@
          , image: "assets/images/map/mewtwoy.png"
          })
      %>
+
+    <%- include('templates/mapOverlay',
+        { name: "Genesect Burn"
+        , x: 45, y: 45
+        , width: 4, height: 4
+        , databind: "click: () => TemporaryBattleList['Genesect Burn'].protectedOnclick()"
+        , visible:  "TemporaryBattleList['Genesect Burn'] && TemporaryBattleList['Genesect Burn'].isVisible()"
+        , image: "assets/images/map/Overworld Genesect.png"
+        })
+    %>
+
+
+    <%- include('templates/mapOverlay',
+        { name: "Genesect Chill"
+        , x: 54, y: 51
+        , width: 4, height: 4
+        , databind: "click: () => TemporaryBattleList['Genesect Chill'].protectedOnclick()"
+        , visible:  "TemporaryBattleList['Genesect Chill'] && TemporaryBattleList['Genesect Chill'].isVisible()"
+        , image: "assets/images/map/Overworld Genesect.png"
+        })
+    %>
+
+    <%- include('templates/mapOverlay',
+        { name: "Genesect Douse"
+        , x: 45, y: 51
+        , width: 4, height: 4
+        , databind: "click: () => TemporaryBattleList['Genesect Douse'].protectedOnclick()"
+        , visible:  "TemporaryBattleList['Genesect Douse'] && TemporaryBattleList['Genesect Douse'].isVisible()"
+        , image: "assets/images/map/Overworld Genesect.png"
+        })
+    %>
+
+    <%- include('templates/mapOverlay',
+        { name: "Genesect Shock"
+        , x: 54, y: 45
+        , width: 4, height: 4
+        , databind: "click: () => TemporaryBattleList['Genesect Shock'].protectedOnclick()"
+        , visible:  "TemporaryBattleList['Genesect Shock'] && TemporaryBattleList['Genesect Shock'].isVisible()"
+        , image: "assets/images/map/Overworld Genesect.png"
+        })
+    %>
 
 </g>
